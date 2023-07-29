@@ -1,23 +1,26 @@
-import os
 import sqlite3
+import os
 import youtube_dl
-from googleapiclient.discovery import build
 from datetime import datetime
+from pprint import pprint
+from googleapiclient.discovery import build
+
 
 API_KEY = 'AIzaSyCrs5n4zvPSkibOkCTh8FUqKYBBFdyeeL8'
 DOWNLOAD_DIRECTORY = './downloads'
 
-# Set up the SQLite database
 conn = sqlite3.connect('videos.db')
 c = conn.cursor()
 c.execute(
     '''
     CREATE TABLE IF NOT EXISTS videos (
-        title TEXT,
-        video_id TEXT,
-        video_url TEXT,
-        date_added TEXT,
-        file_path TEXT
+        id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        video_id TEXT UNIQUE NOT NULL,
+        video_url TEXT NOT NULL,
+        date_added DATETIME NOT NULL,
+        file_path TEXT NOT NULL,
+        date_downloaded DATETIME NOT NULL
     )
     '''
 )
@@ -25,12 +28,18 @@ conn.commit()
 
 
 def download_video(video_info):
+    print(video_info)
     video_url = video_info['video_url']
-    video_id = video_info['video_id']
-
     ydl_opts = {
-        'outtmpl': os.path.join(DOWNLOAD_DIRECTORY, f'{video_id}.%(ext)s'),
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': os.path.join(DOWNLOAD_DIRECTORY, '%(title)s.%(ext)s'),
     }
+
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
@@ -40,13 +49,14 @@ def download_video(video_info):
 
 def save_to_db(video_info):
     c.execute(
-        "INSERT INTO videos VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO videos (title, video_id, video_url, date_added, file_path, date_downloaded) VALUES (?, ?, ?, ?, ?, ?)",
         (
             video_info['title'],
             video_info['video_id'],
             video_info['video_url'],
             video_info['date_added'],
-            video_info['file_path']
+            video_info['file_path'],
+            video_info['date_downloaded'].isoformat()
         )
     )
     conn.commit()
@@ -58,7 +68,7 @@ def get_playlist_videos(playlist_id):
         request = youtube.playlistItems().list(
             part="snippet",
             maxResults=50,
-            playlistId='PLaAJi8Z_gRBck2xXaudQp6UfkBvDo8JIl'
+            playlistId=playlist_id
         )
 
         while request is not None:
@@ -67,7 +77,7 @@ def get_playlist_videos(playlist_id):
                 title = item["snippet"]["title"]
                 video_id = item["snippet"]["resourceId"]["videoId"]
                 video_url = f"https://www.youtube.com/watch?v={video_id}"
-                date_added = item["snippet"]["publishedAt"]
+                date_added = datetime.fromisoformat(item["snippet"]["publishedAt"].replace('Z', '+00:00'))
 
                 video_info = {
                     "title": title,
@@ -80,13 +90,16 @@ def get_playlist_videos(playlist_id):
 
             request = youtube.playlistItems().list_next(request, response)
 
+    # Sort the list in descending order based on date_added
+    videos_list = sorted(videos_list, key=lambda x: x['date_added'], reverse=True)
     return videos_list
 
-# Get the video list
+
+
+
 video_list = get_playlist_videos(playlist_id='PLaAJi8Z_gRBck2xXaudQp6UfkBvDo8JIl')
 
-# Download the videos and save to the database
 for video in video_list:
     video['file_path'] = download_video(video)
-    video['date_download'] = now()
+    video['date_downloaded'] = datetime.now().isoformat()
     save_to_db(video)
