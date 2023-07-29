@@ -3,7 +3,6 @@ import os
 import yt_dlp
 from typing import Dict
 from datetime import datetime
-from pprint import pprint
 from dotenv import dotenv_values
 from googleapiclient.discovery import build
 
@@ -17,17 +16,22 @@ c.execute(
         id TEXT UNIQUE NOT NULL,
         title TEXT NOT NULL,
         url TEXT NOT NULL,
+        path TEXT NOT NULL,
         added_at DATETIME NOT NULL,
         created_at DATETIME NOT NULL
-        path TEXT NOT NULL,
     )
     """
 )
 conn.commit()
 
 
-def download_video(video: Dict[str, str]) -> str:
-    file_path = os.path.join(CONFIG['DOWNLOAD_DIR'], video["title"])
+def download_video(video: Dict[str, str]) -> None | str:
+    file_path = os.path.join(CONFIG['DOWNLOAD_DIR'], f'{video["title"]}')
+    expected_file_path = file_path + '.mp3'
+
+    if os.path.isfile(expected_file_path):
+        print(f'[INFO] {expected_file_path} Already Exists, Skipping...')
+        return None
 
     ydl_opts = {
         "format": "bestaudio/best",
@@ -48,16 +52,15 @@ def download_video(video: Dict[str, str]) -> str:
 
 
 def save_to_db(video_info):
-    columns = ("id", "title", "url", "added_at", "created_at", "path")
     c.execute(
-        "INSERT INTO videos (title, video_url,date_added, file_path, date_downloaded)\ VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO videos (id, title, url, path, added_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
         (
-            video_info["title"],
             video_info["id"],
-            video_info["video_url"],
-            video_info["date_added"],
+            video_info["title"],
+            video_info["url"],
             video_info["file_path"],
-            video_info["date_downloaded"],
+            video_info["added_at"],
+            video_info["created_at"],
         ),
     )
     conn.commit()
@@ -74,13 +77,13 @@ def get_playlist_videos(playlist_id):
                 title = item["snippet"]["title"]
                 video_id = item["snippet"]["resourceId"]["videoId"]
                 video_url = f"https://www.youtube.com/watch?v={video_id}"
-                date_added = datetime.fromisoformat(item["snippet"]["publishedAt"].replace("Z", "+00:00"))
+                added_at = datetime.fromisoformat(item["snippet"]["publishedAt"].replace("Z", "+00:00"))
 
                 video_info = {
                     "title": title,
-                    "video_id": video_id,
-                    "video_url": video_url,
-                    "date_added": date_added,
+                    "id": video_id,
+                    "url": video_url,
+                    "added_at": added_at,
                 }
 
                 videos_list.append(video_info)
@@ -88,14 +91,15 @@ def get_playlist_videos(playlist_id):
             request = youtube.playlistItems().list_next(request, response)
 
     # Sort the list in descending order based on date_added
-    videos_list = sorted(videos_list, key=lambda x: x["date_added"], reverse=True)
+    videos_list = sorted(videos_list, key=lambda x: x["added_at"], reverse=True)
     return videos_list
 
 
 if __name__ == "__main__":
     playlist_videos = get_playlist_videos(playlist_id=CONFIG['PLAYLIST_ID'])
-
     for video in playlist_videos:
-        download_video(video)
-        video["date_downloaded"] = datetime.now()
-        save_to_db(video)
+        file_path = download_video(video)
+        if (file_path is not None):
+            video["created_at"] = datetime.now()
+            video["file_path"] = file_path
+            save_to_db(video)
