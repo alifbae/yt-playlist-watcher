@@ -10,13 +10,14 @@ from utils import (
 
 
 if __name__ == "__main__":
-    db_conn = get_db_connection()
     config = get_config()
+    db_conn = get_db_connection()
     create_table(db_conn)
 
     playlist_videos = get_playlist_videos(
         api_key=config["API_KEY"],
         playlist_id=config["PLAYLIST_ID"],
+        download_dir=config["DOWNLOAD_DIR"],
         skip_downloaded=True
     )
 

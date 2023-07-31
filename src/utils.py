@@ -8,7 +8,18 @@ import yt_dlp
 
 
 def get_config() -> Dict[str, any]:
-    return dotenv_values(".env")
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the project root directory
+    root_dir = os.path.dirname(script_dir)
+
+    # Path to the .env file in the project root
+    env_path = os.path.join(root_dir, '.env')
+
+    # Load the .env file
+    config = dotenv_values(env_path)
+    return config
 
 
 def get_db_connection() -> Connection:
@@ -140,7 +151,7 @@ def get_playlist_videos(
 
 
 def download_video(video: Dict[str, str], download_dir: str) -> str:
-    file_path = os.path.join(download_dir, f'{video["title"]}')
+    file_path = os.path.abspath(os.path.join(download_dir, f'{video["title"]}'))
 
     ydl_opts = {
         "format": "bestaudio/best",
@@ -157,5 +168,4 @@ def download_video(video: Dict[str, str], download_dir: str) -> str:
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video["url"]])
 
-    file_path = f'{file_path}.mp3'
-    return file_path
+    return f'{file_path}.mp3'

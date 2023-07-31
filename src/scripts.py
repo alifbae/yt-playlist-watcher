@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import argparse
 import sqlite3
 import subprocess
@@ -14,8 +15,13 @@ def truncate_db():
 
 
 def update_requirements():
-    with open('requirements.txt', 'w') as f:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(script_dir)
+    requirements_path = os.path.join(root_dir, 'requirements.txt')
+
+    with open(requirements_path, 'w') as f:
         subprocess.call(['pip', 'freeze'], stdout=f)
+
     print("Successfully updated 'requirements.txt'.")
 
 
@@ -42,6 +48,7 @@ def main():
         update_requirements()
     if args.delete_table:
         delete_table()
+
 
 if __name__ == "__main__":
     main()
