@@ -51,7 +51,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td><a href="{{ video['url'] }}">{{ video['title'] }}</a></td>
-                        <td><a href="{{ url_for('download', filename=video['title'] + '.mp3') }}">Download</a></td>                    </tr>
+                        <td><a href="{{ url_for('download', filename=video['title'] + '.mp3') }}">&#11015;</a></td>                    </tr>
                 {% endfor %}
             </tbody>
         </table>
