@@ -4,6 +4,7 @@ import argparse
 import sqlite3
 import subprocess
 
+
 def truncate_db():
     conn = sqlite3.connect('videos.db')
     c = conn.cursor()
@@ -11,10 +12,12 @@ def truncate_db():
     conn.commit()
     print("Successfully truncated the 'videos' table.")
 
+
 def update_requirements():
     with open('requirements.txt', 'w') as f:
         subprocess.call(['pip', 'freeze'], stdout=f)
     print("Successfully updated 'requirements.txt'.")
+
 
 def delete_table():
     conn = sqlite3.connect('videos.db')
@@ -23,6 +26,7 @@ def delete_table():
     conn.commit()
     conn.close()
     print("Table 'videos' has been deleted.")
+
 
 def main():
     parser = argparse.ArgumentParser(description='Handle different maintenance tasks.')
