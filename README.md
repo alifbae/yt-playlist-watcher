@@ -56,10 +56,10 @@ Will launch a local development server at `localhost:8000`, `/` path will serve 
 ## Deploying
 
 ```bash
-# get build dependencies
+# install system dependencies
 sudo apt-get update
 sudo apt-get install make build-essential libssl-dev zlib1g-dev \
-libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+libbz2-dev libreadline-dev libsqlite3-dev wget curl git llvm \
 libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
 # get pyenv
@@ -78,6 +78,15 @@ pyenv --version
 
 # install python
 pyenv install 3.11.4
+
+# install app dependencies
+pyenv shell 3.11.4
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+
 
 
 ```

@@ -12,7 +12,11 @@ config = get_config()
 def home():
     videos_dict = get_videos_db()
     playlist_dict = get_playlist_info()
-    return render_template('index.html', videos=videos_dict, playlist=playlist_dict)
+    return render_template(
+        'index.html',
+        videos=videos_dict,
+        playlist=playlist_dict
+    )
 
 
 @app.route('/download/<path:filename>', methods=['GET'])
@@ -26,7 +30,11 @@ def download(filename):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dev", action="store_true", help="Run in development mode")
+    parser.add_argument(
+        "--dev",
+        action="store_true",
+        help="Run in development mode"
+    )
     args = parser.parse_args()
 
     if args.dev:
