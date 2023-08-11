@@ -23,7 +23,7 @@ def get_config() -> Dict[str, any]:
 
 
 def get_db_connection() -> Connection:
-    return connect('videos.db')
+    return connect('./videos.db')
 
 
 def create_table(db_conn: Connection) -> None:
@@ -104,18 +104,14 @@ def get_playlist_info():
         return playlist_info
 
 
-def get_playlist_videos(
-        api_key: str,
-        download_dir: str,
-        playlist_id: str,
-        skip_downloaded: bool = True
-        ) -> List:
+def get_playlist_videos(skip_downloaded: bool = True) -> List:
+    config = get_config()
     videos_list = []
-    with build("youtube", "v3", developerKey=api_key) as youtube:
+    with build("youtube", "v3", developerKey=config["API_KEY"]) as youtube:
         request = youtube.playlistItems().list(
             part="snippet",
             maxResults=50,
-            playlistId=playlist_id
+            playlistId=config["PLAYLIST_ID"]
         )
 
         while request is not None:
@@ -125,7 +121,7 @@ def get_playlist_videos(
                 video_id = item["snippet"]["resourceId"]["videoId"]
                 video_url = f"https://www.youtube.com/watch?v={video_id}"
                 added_at = datetime.fromisoformat(item["snippet"]["publishedAt"].replace("Z", "+00:00"))
-                expected_file_path = f'{download_dir}/{video_title}.mp3'
+                expected_file_path = f'{config["DOWNLOAD_DIR"]}/{video_title}.mp3'
 
                 video_info = {
                     "title": video_title,
@@ -150,8 +146,9 @@ def get_playlist_videos(
     return videos_list
 
 
-def download_video(video: Dict[str, str], download_dir: str) -> str:
-    file_path = os.path.abspath(os.path.join(download_dir, f'{video["title"]}'))
+def download_video(video_title: str, video_url: str) -> str:
+    config = get_config()
+    file_path = os.path.abspath(os.path.join(config["DOWNLOAD_DIR"], video_title))
 
     ydl_opts = {
         "format": "bestaudio/best",
@@ -166,6 +163,6 @@ def download_video(video: Dict[str, str], download_dir: str) -> str:
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video["url"]])
+        ydl.download([video_url])
 
     return f'{file_path}.mp3'

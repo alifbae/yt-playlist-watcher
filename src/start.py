@@ -2,7 +2,6 @@ from datetime import datetime
 from utils import (
     get_db_connection,
     create_table,
-    get_config,
     get_playlist_videos,
     download_video,
     save_to_db,
@@ -10,28 +9,20 @@ from utils import (
 
 
 if __name__ == "__main__":
-    config = get_config()
     db_conn = get_db_connection()
     create_table(db_conn)
 
-    playlist_videos = get_playlist_videos(
-        api_key=config["API_KEY"],
-        playlist_id=config["PLAYLIST_ID"],
-        download_dir=config["DOWNLOAD_DIR"],
-        skip_downloaded=True
-    )
-
+    playlist_videos = get_playlist_videos(skip_downloaded=True)
     for video in playlist_videos:
         try:
-            file_path = download_video(video, download_dir=config["DOWNLOAD_DIR"])
+            file_path = download_video(video_title=video["title"], video_url=video["url"])
         except Exception as e:
             print(f"Error downloading video: {e}")
             continue
 
-        video["created_at"] = datetime.now()
-        video["file_path"] = file_path
-
         try:
+            video["created_at"] = datetime.now()
+            video["file_path"] = file_path
             save_to_db(db_conn, video)
         except Exception as e:
             print(f"Error saving video to DB: {e}")

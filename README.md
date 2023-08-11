@@ -52,3 +52,32 @@ Will launch a local development server at `localhost:8000`, `/` path will serve 
 ```bash
 ./scripts --update-reqs
 ```
+
+## Deploying
+
+```bash
+# get build dependencies
+sudo apt-get update
+sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
+# get pyenv
+curl https://pyenv.run | bash
+
+# export pyenv to path
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
+# restart shell
+exec $SHELL
+
+# validate
+pyenv --version
+
+# install python
+pyenv install 3.11.4
+
+
+```
