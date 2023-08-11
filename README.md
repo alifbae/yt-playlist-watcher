@@ -79,11 +79,13 @@ pyenv --version
 # install python
 pyenv install 3.11.4
 
-# install app dependencies
+# install python dependencies
 pyenv shell 3.11.4
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate
+
+# install
 pip install -r requirements.txt
 
 
