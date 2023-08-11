@@ -38,4 +38,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.dev:
-        app.run('localhost', '8000', debug=True)
+        app.run('0.0.0.0', '8000', debug=True)
