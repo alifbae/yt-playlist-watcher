@@ -56,6 +56,11 @@ Will launch a local development server at `localhost:8000`, `/` path will serve 
 ## Deploying
 
 ```bash
+# setup firewall
+sudo ufw allow ssh
+sudo ufw allow https
+sudo ufw enable
+
 # install system dependencies
 sudo apt-get update
 sudo apt-get install make build-essential libssl-dev zlib1g-dev \
@@ -85,10 +90,11 @@ pip install virtualenv
 virtualenv venv
 source venv/bin/activate
 
-# install
+# install app dependencies
 pip install -r requirements.txt
+pip install uwsgi flask
 
-
+uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi:app
 
 
 ```
