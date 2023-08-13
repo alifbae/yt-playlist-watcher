@@ -94,7 +94,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 pip install uwsgi flask
 
+# verify uwsgi server
 uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi:app
 
-
+# create systemd service (from repository root)
+sudo cp yt-playlist-watcher.service /etc/systemd/system/yt-playlist-watcher
+sudo systemctl start yt-playlist-watcher
+sudo systemctl enable yt-playlist-watcher
+sudo systemctl status yt-playlist-watcher
 ```

@@ -1,5 +1,5 @@
 # systemd config
-## move this to /etc/systemd/system/yt-playlist-watcher.service
+## move this to /etc/systemd/system/yt-playlist-watcher
 
 [Unit]
 Description=uWSGI instance to serve yt-playlist-watcher
