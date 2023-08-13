@@ -1,0 +1,16 @@
+# systemd config
+## move this to /etc/systemd/system/yt-playlist-watcher.service
+
+[Unit]
+Description=uWSGI instance to serve yt-playlist-watcher
+After=network.target
+
+[Service]
+User=alif
+Group=www-data
+WorkingDirectory=/home/alif/dev/yt-playlist-watcher
+Environment="/home/alif/dev/yt-playlist-watcher/venv/bin"
+ExecStart=/home/alif/dev/yt-playlist-watcher/venv/bin/uwsgi --ini yt-playlist-watcher.ini
+
+[Install]
+WantedBy=multi-user.target

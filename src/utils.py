@@ -17,13 +17,16 @@ def get_config() -> Dict[str, any]:
     # Path to the .env file in the project root
     env_path = os.path.join(root_dir, '.env')
 
-    # Load the .env file
     config = dotenv_values(env_path)
+    config['REPOSITORY_ROOT_ABS_PATH'] = root_dir
+    print(config)
     return config
 
 
 def get_db_connection() -> Connection:
-    return connect('./videos.db')
+    config = get_config()
+    videos_db_abs_path = os.path.join(config['REPOSITORY_ROOT_ABS_PATH'], 'videos.db')
+    return connect(videos_db_abs_path)
 
 
 def create_table(db_conn: Connection) -> None:
@@ -45,6 +48,7 @@ def create_table(db_conn: Connection) -> None:
 
 def get_videos_db() -> List[Dict[str, str]]:
     conn = get_db_connection()
+    print(conn)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM videos")
 

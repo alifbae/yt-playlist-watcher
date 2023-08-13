@@ -35,10 +35,24 @@ def delete_table():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Handle different maintenance tasks.')
-    parser.add_argument('--truncate', action='store_true', help='Truncate the SQLite database.')
-    parser.add_argument('--update-reqs', action='store_true', help='Update the requirements.txt file.')
-    parser.add_argument('--delete-table', action='store_true', help="Delete the 'videos' table.")
+    parser = argparse.ArgumentParser(
+        description='Handle different maintenance tasks.'
+    )
+    parser.add_argument(
+        '--truncate',
+        action='store_true',
+        help='Truncate the SQLite database.'
+    )
+    parser.add_argument(
+        '--update-reqs',
+        action='store_true',
+        help='Update the requirements.txt file.'
+    )
+    parser.add_argument(
+        '--delete-table',
+        action='store_true',
+        help="Delete the 'videos' table."
+    )
 
     args = parser.parse_args()
 

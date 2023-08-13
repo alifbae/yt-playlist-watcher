@@ -1,8 +1,8 @@
 import argparse
 import os
+from urllib.parse import quote
 from flask import Flask, render_template, send_from_directory
-from utils import get_videos_db, get_playlist_info, get_config
-
+from src.utils import get_videos_db, get_playlist_info, get_config
 
 app = Flask(__name__)
 config = get_config()
@@ -21,11 +21,14 @@ def home():
 
 @app.route('/download/<path:filename>', methods=['GET'])
 def download(filename):
-    return send_from_directory(
+    safe_filename = quote(filename, safe='')
+    response = send_from_directory(
         os.path.normpath(config["DOWNLOAD_DIR"]),
         filename,
-        as_attachment=True
+        as_attachment=False
     )
+    response.headers["Content-Disposition"] = f"inline; filename*=utf-8''{safe_filename}"
+    return response
 
 
 if __name__ == "__main__":

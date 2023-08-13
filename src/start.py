@@ -1,5 +1,5 @@
 from datetime import datetime
-from utils import (
+from src.utils import (
     get_db_connection,
     create_table,
     get_playlist_videos,
@@ -15,7 +15,10 @@ if __name__ == "__main__":
     playlist_videos = get_playlist_videos(skip_downloaded=True)
     for video in playlist_videos:
         try:
-            file_path = download_video(video_title=video["title"], video_url=video["url"])
+            file_path = download_video(
+                video_title=video["title"],
+                video_url=video["url"]
+            )
         except Exception as e:
             print(f"Error downloading video: {e}")
             continue
