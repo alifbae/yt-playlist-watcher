@@ -19,7 +19,6 @@ def get_config() -> Dict[str, any]:
 
     config = dotenv_values(env_path)
     config['REPOSITORY_ROOT_ABS_PATH'] = root_dir
-    print(config)
     return config
 
 
@@ -48,7 +47,6 @@ def create_table(db_conn: Connection) -> None:
 
 def get_videos_db() -> List[Dict[str, str]]:
     conn = get_db_connection()
-    print(conn)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM videos")
 
