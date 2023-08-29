@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.utils import (
+from utils import (
     get_db_connection,
     create_table,
     get_playlist_videos,
